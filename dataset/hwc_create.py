@@ -9,8 +9,8 @@ from PIL.ImageDraw import Draw
 import base64
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--source_data_path', type = str, default = '/home/lucas/data/IAM_Handwritten/')
-parser.add_argument('--dest_dir', type = str, default = '/home/lucas/data/IAM_Handwritten/')
+parser.add_argument('--source_data_path', type = str)
+parser.add_argument('--dest_dir', type = str)
 
 args = parser.parse_args()
 print args
@@ -94,7 +94,7 @@ def list_files(directory, ext='jpg|jpeg|bmp|png'):
     return [os.path.join(directory, f) for f in os.listdir(directory)
             if os.path.isfile(os.path.join(directory, f)) and ("."+ext in f)]
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 def refine_line_bounds(form_image,xmin,ymin,xmax,ymax):
     line_im = form_image.crop((xmin,ymin,xmax,ymax))
     contrast = ImageEnhance.Contrast(line_im)
@@ -115,17 +115,17 @@ def refine_line_bounds(form_image,xmin,ymin,xmax,ymax):
     return ymin, ymax
 
 xmls = sorted(list_files(source_data_path+'xml','xml'))
-xmls.remove('/home/lucas/data/IAM_Handwritten/xml/a01-072u.xml')
 
 create_folders(dest_dir)
 it = 0
 for xml in xmls:
-    tree = ET.parse(xml)
-    root = tree.getroot()
-    form_id = root.attrib['id']
-    form_path = source_data_path+'forms/'+form_id+'.png'
-    form_image = Image.open(form_path)
-    for line in root.iter('line'):
+    try:
+      tree = ET.parse(xml)
+      root = tree.getroot()
+      form_id = root.attrib['id']
+      form_path = source_data_path+'forms/'+form_id+'.png'
+      form_image = Image.open(form_path)
+      for line in root.iter('line'):
         line_text = line.attrib['text']
         ymin=100000
         ymax=0
@@ -154,8 +154,6 @@ for xml in xmls:
         chars = create_char_list(line,words)
         ymin,ymax = refine_line_bounds(form_image,xmin,ymin,xmax,ymax)
         crop_and_save_line_chars(form_image,chars,ymin,ymax,ymax-ymin,dest_dir)
-    if it<100: #
-        it = it + 1
-    else:
-        break
+    except:
+      print "skip!"
 

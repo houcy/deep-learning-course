@@ -9,8 +9,8 @@ from PIL.ImageDraw import Draw
 import base64
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--source_data_path', type = str)
-parser.add_argument('--dest_dir', type = str)
+parser.add_argument('--source_data_path', type = str, required=True)
+parser.add_argument('--dest_dir', type = str, required=True)
 
 args = parser.parse_args()
 print args
